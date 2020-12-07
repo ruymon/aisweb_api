@@ -31,8 +31,7 @@ server.get('/cartas', async (req, res) => {
   }
 });
 
-
-//Metar
+//Metar & TAF
 server.get('/metar', (req, res) => {
   let query = req.query;
   if (query.icaoCode) {
@@ -44,10 +43,66 @@ server.get('/metar', (req, res) => {
       })
   } else {
     res.code = 403
-    return res.send('Invalid Request');
+    return res.send('Invalid Request - IcaoCode is required!');
   }
+});
 
-})
+// NOTAM
+server.get('/notam', (req, res) => {
+  let query = req.query;
+  if (query.icaoCode) {
+    axios.get(`${apiUrl}&area=notam&icaoCode=${query.icaoCode}`, { "Content-Type": "application/xml; charset=utf-8" })
+      .then((response) => {
+        var result = response.data;
+        var parsedResult = parseResult(result);
+        return res.send(parsedResult);
+      })
+  } else {
+    axios.get(`${apiUrl}&area=notam`, { "Content-Type": "application/xml; charset=utf-8" })
+    .then(response => {
+      var result = response.data;
+      var parsedResult = parseResult(result);
+      return res.send(parsedResult);
+    })
+  }
+});
+
+// Tabela Nascer e Por do Sol
+server.get('/sol', (req, res) => {
+  let query = req.query;
+  if (query.icaoCode) {
+    axios.get(`${apiUrl}&area=sol&icaoCode=${query.icaoCode}`, { "Content-Type": "application/xml; charset=utf-8" })
+      .then((response) => {
+        var result = response.data;
+        var parsedResult = parseResult(result);
+        return res.send(parsedResult);
+      })
+  } else {
+    res.code = 403
+    return res.send('Invalid Request - IcaoCode is required!');
+  }
+});
+
+// ROTAER 
+server.get('/rotaer', (req, res) => {
+  let query = req.query;
+  if (query.icaoCode) {
+    axios.get(`${apiUrl}&area=rotaer&icaoCode=${query.icaoCode}`, { "Content-Type": "application/xml; charset=utf-8" })
+      .then((response) => {
+        var result = response.data;
+        var parsedResult = parseResult(result);
+        return res.send(parsedResult);
+      })
+  } else {
+    axios.get(`${apiUrl}&area=rotaer`, { "Content-Type": "application/xml; charset=utf-8" })
+    .then(response => {
+      var result = response.data;
+      var parsedResult = parseResult(result);
+      return res.send(parsedResult);
+    })
+  }
+});
+
 
 // Result Parser
 function parseResult(result) {
@@ -58,7 +113,9 @@ function parseResult(result) {
 
 
 
-server.listen(process.env.PORT || 3000);
+server.listen(process.env.PORT || 3000, () => {
+  console.log("API Aberta");
+});
 
 
 
