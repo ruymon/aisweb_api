@@ -58,9 +58,8 @@ function parseResult(result) {
 
 
 
-server.listen(process.env.PORT || 3000, () => {
-  console.log('API Aberta');
-});
+server.listen(process.env.PORT || 3000);
+
 
 
 
