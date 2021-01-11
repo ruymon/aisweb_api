@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const axios = require('axios').default;
 const fastXmlParser = require('fast-xml-parser');
+const cors = require('cors');
 
 const apiKey = process.env.API_KEY;
 const apiPassword = process.env.API_PASSWORD;
@@ -10,22 +11,23 @@ const apiUrl = 'http://aisweb.decea.gov.br/api/?apiKey=' + apiKey + '&apiPass=' 
 
 const server = express();
 
+
+server.use(cors());
+
 // Cartas
 server.get('/cartas', async (req, res) => {
   let query = req.query;
 
   if (query.icaoCode !== undefined) {
-    axios.get(`${apiUrl}&area=cartas&icaoCode=${query.icaoCode}`, { "Content-Type": "application/xml; charset=utf-8" })
-      .then((response) => {
-        var result = response.data;
-        var parsedResult = parseResult(result);
-        return res.send(parsedResult);
-      })
+      let response = await axios.get(`${apiUrl}&area=cartas&icaoCode=${query.icaoCode}`, { "Content-Type": "application/xml; charset=utf-8" })
+      let result = response.data;
+      let parsedResult = parseResult(result);
+      return res.send(parsedResult);
   } else {
     axios.get(`${apiUrl}&area=cartas`, { "Content-Type": "application/xml; charset=utf-8" })
     .then(response => {
-      var result = response.data;
-      var parsedResult = parseResult(result);
+      let result = response.data;
+      let parsedResult = parseResult(result);
       return res.send(parsedResult);
     })
   }
@@ -37,10 +39,13 @@ server.get('/metar', (req, res) => {
   if (query.icaoCode) {
     axios.get(`${apiUrl}&area=met&icaoCode=${query.icaoCode}`, { "Content-Type": "application/xml; charset=utf-8" })
       .then((response) => {
-        var result = response.data;
-        var parsedResult = parseResult(result);
+        let result = response.data;
+        let parsedResult = parseResult(result);
         return res.send(parsedResult);
       })
+      // .catch(() => {
+      //   return axios.get()
+      // }); 
   } else {
     res.code = 403
     return res.send('Invalid Request - IcaoCode is required!');
@@ -53,15 +58,15 @@ server.get('/notam', (req, res) => {
   if (query.icaoCode) {
     axios.get(`${apiUrl}&area=notam&icaoCode=${query.icaoCode}`, { "Content-Type": "application/xml; charset=utf-8" })
       .then((response) => {
-        var result = response.data;
-        var parsedResult = parseResult(result);
+        let result = response.data;
+        let parsedResult = parseResult(result);
         return res.send(parsedResult);
       })
   } else {
     axios.get(`${apiUrl}&area=notam`, { "Content-Type": "application/xml; charset=utf-8" })
     .then(response => {
-      var result = response.data;
-      var parsedResult = parseResult(result);
+      let result = response.data;
+      let parsedResult = parseResult(result);
       return res.send(parsedResult);
     })
   }
@@ -89,15 +94,15 @@ server.get('/rotaer', (req, res) => {
   if (query.icaoCode) {
     axios.get(`${apiUrl}&area=rotaer&icaoCode=${query.icaoCode}`, { "Content-Type": "application/xml; charset=utf-8" })
       .then((response) => {
-        var result = response.data;
-        var parsedResult = parseResult(result);
+        let result = response.data;
+        let parsedResult = parseResult(result);
         return res.send(parsedResult);
       })
   } else {
     axios.get(`${apiUrl}&area=rotaer`, { "Content-Type": "application/xml; charset=utf-8" })
     .then(response => {
-      var result = response.data;
-      var parsedResult = parseResult(result);
+      let result = response.data;
+      let parsedResult = parseResult(result);
       return res.send(parsedResult);
     })
   }
@@ -106,7 +111,7 @@ server.get('/rotaer', (req, res) => {
 
 // Result Parser
 function parseResult(result) {
-  var jsonObj = fastXmlParser.parse(result);
+  let jsonObj = fastXmlParser.parse(result);
   return jsonObj;
 
 };
@@ -116,21 +121,3 @@ function parseResult(result) {
 server.listen(process.env.PORT || 3000, () => {
   console.log("API Aberta");
 });
-
-
-
-
-
-// let query = req.query;
-
-//   if (query.icaoCode !== undefined) {
-//     axios.get(`${apiUrl}&area=cartas&icaoCode=${query.icaoCode}`, { "Content-Type": "application/xml; charset=utf-8" })
-//       .then((response) => {
-//         var result = response.data;
-//         var parsedResult = parseResult(result);
-//         return res.send(parsedResult);
-//       })
-//   } else {
-//     res.code = 403
-//     return res.send('Invalid Request');
-//   }
